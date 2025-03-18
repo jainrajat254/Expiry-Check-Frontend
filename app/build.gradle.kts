@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.example.expirycheck"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.expirycheck"
@@ -81,6 +81,11 @@ dependencies {
     testImplementation(libs.hilt.android.testing)
 
     implementation(libs.androidx.navigation.compose)
+
+    implementation(libs.androidx.hilt.navigation.fragment)
+    implementation(libs.androidx.hilt.navigation.compose)
+
+    implementation(libs.androidx.core.splashscreen)
 
     // Retrofit for API requests
     implementation(libs.retrofit)
