@@ -62,6 +62,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.animation.core.lint)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -72,21 +73,19 @@ dependencies {
 
     implementation(libs.hilt.android.v254)
     ksp(libs.hilt.android.compiler)
-
     implementation(libs.dagger.hilt.android)
     ksp(libs.hilt.compiler)
     // For instrumentation tests
     androidTestImplementation(libs.hilt.android.testing)
     // For local unit tests
     testImplementation(libs.hilt.android.testing)
-
+    //Navigation
     implementation(libs.androidx.navigation.compose)
-
+    //Hilt Navigation
     implementation(libs.androidx.hilt.navigation.fragment)
     implementation(libs.androidx.hilt.navigation.compose)
-
+    //Splash Screen
     implementation(libs.androidx.core.splashscreen)
-
     // Retrofit for API requests
     implementation(libs.retrofit)
     implementation(libs.converter.gson)

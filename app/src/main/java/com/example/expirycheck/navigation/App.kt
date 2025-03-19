@@ -9,7 +9,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.expirycheck.screens.HomeScreen
 import com.example.expirycheck.screens.LoginScreen
 import com.example.expirycheck.screens.RegisterScreen
-import com.example.expirycheck.screens.SplashScreen
 import com.example.expirycheck.viewmodel.UserViewModel
 
 @Composable
@@ -19,16 +18,13 @@ fun App() {
     val vm = hiltViewModel<UserViewModel>()
     val modifier = Modifier
 
-    NavHost(navController = navController, startDestination = Routes.Splash.routes) {
+    NavHost(navController = navController, startDestination = Routes.Login.routes) {
 
-        composable(Routes.Splash.routes) {
-            SplashScreen(navController = navController, vm = vm, modifier = modifier)
-        }
         composable(Routes.Login.routes) {
-            LoginScreen()
+            LoginScreen(navController = navController, vm = vm)
         }
         composable(Routes.Register.routes) {
-            RegisterScreen()
+            RegisterScreen(navController = navController, vm = vm)
         }
         composable(Routes.Home.routes) {
             HomeScreen()
