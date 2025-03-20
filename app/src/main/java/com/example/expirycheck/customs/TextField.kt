@@ -1,6 +1,5 @@
 package com.example.expirycheck.customs
 
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -20,6 +19,8 @@ fun CustomTextField(
     trailingIcon: @Composable (() -> Unit)? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
     visualTransformation: VisualTransformation = VisualTransformation.None,
+    enabled: Boolean = true,
+    readOnly: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     OutlinedTextField(
@@ -32,6 +33,8 @@ fun CustomTextField(
         singleLine = singleLine,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         visualTransformation = visualTransformation,
+        enabled = enabled,
+        readOnly = readOnly,
         modifier = modifier
     )
 }

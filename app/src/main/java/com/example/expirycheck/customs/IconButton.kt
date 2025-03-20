@@ -14,14 +14,15 @@ fun CustomIconButton(
     iconRes: Int,
     contentDescription: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    color: Color = Color.Unspecified
 ) {
     IconButton(onClick = onClick) {
         Icon(
             painter = painterResource(id = iconRes),
             contentDescription = contentDescription,
             modifier = modifier.size(40.dp),
-            tint = Color.Unspecified
+            tint = color,
         )
     }
 }

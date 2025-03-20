@@ -29,11 +29,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -163,7 +163,7 @@ fun LoginScreen(
                 // Login Button
                 CustomButton(
                     text = "LOGIN",
-                    onClick = { /* Handle login logic */ },
+                    onClick = { navController.navigate(Routes.Home.routes) },
                     icon = {
                         Icon(
                             Icons.AutoMirrored.Filled.ExitToApp,
@@ -185,12 +185,12 @@ fun LoginScreen(
                     CustomIconButton(
                         iconRes = R.drawable.google,
                         contentDescription = "Google Login",
-                        onClick = { /* Google Login Logic */ }
+                        onClick = { /* Google Login Logic */ },
                     )
                     CustomIconButton(
                         iconRes = R.drawable.fb,
                         contentDescription = "Facebook Login",
-                        onClick = { /* Facebook Login Logic */ }
+                        onClick = { /* Facebook Login Logic */ },
                     )
                 }
 
