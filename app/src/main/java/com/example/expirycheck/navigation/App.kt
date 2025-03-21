@@ -28,7 +28,7 @@ fun App() {
             RegisterScreen(navController = navController, vm = vm)
         }
         composable(Routes.Home.routes) {
-            HomeScreen(navController = navController, vm = vm)
+            HomeScreen(navController = navController)
         }
         composable(Routes.List.routes) {
             ItemListScreen(navController = navController, vm = vm)
@@ -37,7 +37,7 @@ fun App() {
             AddItemsScreen(navController = navController, vm = vm)
         }
         composable(Routes.Settings.routes) {
-            SettingsScreen()
+            SettingsScreen(navController)
         }
     }
 }

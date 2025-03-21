@@ -32,7 +32,7 @@ fun BottomAppBar(navController: NavController) {
             Routes.List.routes,
             Icons.AutoMirrored.Filled.List,
             Icons.AutoMirrored.Outlined.List,
-            "Profile"
+            "List"
         ),
         BottomNavItem(
             Routes.Settings.routes,
