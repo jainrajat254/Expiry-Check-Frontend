@@ -9,35 +9,51 @@ import com.example.expirycheck.screens.AddItemsScreen
 import com.example.expirycheck.screens.HomeScreen
 import com.example.expirycheck.screens.ItemListScreen
 import com.example.expirycheck.screens.LoginScreen
+import com.example.expirycheck.screens.NotificationSettings
+import com.example.expirycheck.screens.PasswordSettings
 import com.example.expirycheck.screens.RegisterScreen
 import com.example.expirycheck.screens.SettingsScreen
+import com.example.expirycheck.screens.ThemeSettings
 import com.example.expirycheck.viewmodel.UserViewModel
 
 @Composable
 fun App() {
-
     val navController = rememberNavController()
     val vm = hiltViewModel<UserViewModel>()
 
     NavHost(navController = navController, startDestination = Routes.Login.routes) {
-
         composable(Routes.Login.routes) {
             LoginScreen(navController = navController, vm = vm)
         }
         composable(Routes.Register.routes) {
-            RegisterScreen(navController = navController, vm = vm)
+            RegisterScreen(
+                navController = navController, vm = vm
+            )
         }
         composable(Routes.Home.routes) {
             HomeScreen(navController = navController)
         }
         composable(Routes.List.routes) {
-            ItemListScreen(navController = navController, vm = vm)
+            ItemListScreen(
+                navController = navController, vm = vm
+            )
         }
         composable(Routes.AddItems.routes) {
-            AddItemsScreen(navController = navController, vm = vm)
+            AddItemsScreen(
+                navController = navController, vm = vm
+            )
         }
         composable(Routes.Settings.routes) {
-            SettingsScreen(navController)
+            SettingsScreen(navController = navController)
+        }
+        composable(Routes.Password.routes) {
+            PasswordSettings()
+        }
+        composable(Routes.Notifications.routes) {
+            NotificationSettings()
+        }
+        composable(Routes.Theme.routes) {
+            ThemeSettings()
         }
     }
 }

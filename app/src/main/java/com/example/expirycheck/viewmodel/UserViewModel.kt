@@ -9,4 +9,5 @@ import javax.inject.Inject
 class UserViewModel @Inject constructor(
     private val userRepository: UserRepository,
 ) : ViewModel() {
+
 }

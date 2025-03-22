@@ -92,5 +92,7 @@ dependencies {
     // ViewModel and LiveData for MVVM architecture
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.livedata)
+    //Datastore
+    implementation(libs.androidx.datastore.preferences)
 
 }
