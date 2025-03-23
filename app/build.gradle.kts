@@ -95,5 +95,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.livedata)
     //Datastore
     implementation(libs.androidx.datastore.preferences)
+    //Work Manager
+    implementation(libs.androidx.work.runtime.ktx)
+
 
 }

@@ -1,23 +1,31 @@
-package com.example.expirycheck
+package com.example.expirycheck.notifications
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
 import android.media.RingtoneManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import androidx.work.Worker
+import androidx.work.WorkerParameters
+import com.example.expirycheck.R
 
-class NotificationReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent?) {
+class NotificationWorker(
+    context: Context,
+    workerParams: WorkerParameters
+) : Worker(context, workerParams) {
+
+    override fun doWork(): Result {
+        showNotification(applicationContext)
+        return Result.success()
+    }
+
+    private fun showNotification(context: Context) {
         val channelId = "daily_reminder_channel"
         val notificationId = 1001
 
-        // Create Notification Manager
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        // Create Notification Channel (For Android 8+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 channelId, "Daily Reminder", NotificationManager.IMPORTANCE_HIGH
@@ -25,7 +33,6 @@ class NotificationReceiver : BroadcastReceiver() {
             notificationManager.createNotificationChannel(channel)
         }
 
-        // Create Notification
         val notification = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle("Reminder")
@@ -34,7 +41,7 @@ class NotificationReceiver : BroadcastReceiver() {
             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
             .build()
 
-        // Show Notification
         notificationManager.notify(notificationId, notification)
     }
 }
+

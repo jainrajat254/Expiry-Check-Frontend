@@ -1,8 +1,6 @@
 package com.example.expirycheck.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -24,38 +22,31 @@ fun App() {
     val vm = hiltViewModel<UserViewModel>()
     val pvm: PreferencesViewModel = hiltViewModel()
 
-    val darkTheme by pvm.isDarkMode.collectAsState()
-
-    NavHost(navController = navController, startDestination = Routes.Login.routes) {
-        composable(Routes.Login.routes) {
-            LoginScreen(navController = navController, vm = vm)
+        NavHost(navController = navController, startDestination = Routes.Login.routes) {
+            composable(Routes.Login.routes) {
+                LoginScreen(navController = navController, vm = vm)
+            }
+            composable(Routes.Register.routes) {
+                RegisterScreen(navController = navController, vm = vm)
+            }
+            composable(Routes.Home.routes) {
+                HomeScreen(navController = navController)
+            }
+            composable(Routes.List.routes) {
+                ItemListScreen(navController = navController, vm = vm)
+            }
+            composable(Routes.AddItems.routes) {
+                AddItemsScreen(navController = navController, vm = vm)
+            }
+            composable(Routes.Settings.routes) {
+                SettingsScreen(navController = navController, pvm = pvm)
+            }
+            composable(Routes.Password.routes) {
+                PasswordSettings()
+            }
+            composable(Routes.Notifications.routes) {
+                NotificationSettings()
+            }
         }
-        composable(Routes.Register.routes) {
-            RegisterScreen(
-                navController = navController, vm = vm
-            )
-        }
-        composable(Routes.Home.routes) {
-            HomeScreen(navController = navController)
-        }
-        composable(Routes.List.routes) {
-            ItemListScreen(
-                navController = navController, vm = vm
-            )
-        }
-        composable(Routes.AddItems.routes) {
-            AddItemsScreen(
-                navController = navController, vm = vm
-            )
-        }
-        composable(Routes.Settings.routes) {
-            SettingsScreen(navController = navController, darkTheme = darkTheme, onDarkThemeChange = { pvm.enableDarkTheme(it) })
-        }
-        composable(Routes.Password.routes) {
-            PasswordSettings()
-        }
-        composable(Routes.Notifications.routes) {
-            NotificationSettings()
-        }
-    }
 }
+
