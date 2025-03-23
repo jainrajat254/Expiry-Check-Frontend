@@ -1,38 +1,29 @@
 package com.example.expirycheck.repository
 
 import android.content.Context
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
-class PreferencesRepository {
+private val Context.dataStore by preferencesDataStore(name = "settings")
 
-    enum class ThemeMode {
-        SYSTEM, LIGHT, DARK
-    }
+class PreferencesRepository(private val context: Context) {
 
     companion object {
-        const val keyThemeMode = "theme_mode"
-        private const val sharedPrefsName = "shared_pref"
+        private val DARK_MODE_KEY = booleanPreferencesKey("dark_mode")
+    }
 
-        fun getThemeMode(
-            context: Context,
-            sharedPrefs: String = sharedPrefsName,
-        ): Int {
-            try {
-                return context.getSharedPreferences(sharedPrefs, Context.MODE_PRIVATE)
-                    .getInt(keyThemeMode, ThemeMode.SYSTEM.ordinal)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-            return ThemeMode.SYSTEM.ordinal
-        }
-
-        fun setThemeMode(
-            context: Context,
-            sharedPrefs: String = sharedPrefsName,
-            themeMode: ThemeMode,
-        ) {
-            return context.getSharedPreferences(sharedPrefs, Context.MODE_PRIVATE)
-                .edit().putInt(keyThemeMode, themeMode.ordinal).apply()
+    fun isDarkMode(): Flow<Boolean> {
+        return context.dataStore.data.map { preferences ->
+            preferences[DARK_MODE_KEY] ?: false  // Default to false if not found
         }
     }
 
+    suspend fun saveDarkMode(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[DARK_MODE_KEY] = enabled
+        }
+    }
 }

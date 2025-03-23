@@ -1,6 +1,8 @@
 package com.example.expirycheck.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -13,13 +15,16 @@ import com.example.expirycheck.screens.NotificationSettings
 import com.example.expirycheck.screens.PasswordSettings
 import com.example.expirycheck.screens.RegisterScreen
 import com.example.expirycheck.screens.SettingsScreen
-import com.example.expirycheck.screens.ThemeSettings
+import com.example.expirycheck.viewmodel.PreferencesViewModel
 import com.example.expirycheck.viewmodel.UserViewModel
 
 @Composable
 fun App() {
     val navController = rememberNavController()
     val vm = hiltViewModel<UserViewModel>()
+    val pvm: PreferencesViewModel = hiltViewModel()
+
+    val darkTheme by pvm.isDarkMode.collectAsState()
 
     NavHost(navController = navController, startDestination = Routes.Login.routes) {
         composable(Routes.Login.routes) {
@@ -44,16 +49,13 @@ fun App() {
             )
         }
         composable(Routes.Settings.routes) {
-            SettingsScreen(navController = navController)
+            SettingsScreen(navController = navController, darkTheme = darkTheme, onDarkThemeChange = { pvm.enableDarkTheme(it) })
         }
         composable(Routes.Password.routes) {
             PasswordSettings()
         }
         composable(Routes.Notifications.routes) {
             NotificationSettings()
-        }
-        composable(Routes.Theme.routes) {
-            ThemeSettings()
         }
     }
 }

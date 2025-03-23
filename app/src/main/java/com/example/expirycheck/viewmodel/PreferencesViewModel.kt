@@ -1,39 +1,33 @@
 package com.example.expirycheck.viewmodel
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.expirycheck.repository.PreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
 @HiltViewModel
-class PreferencesViewModel @Inject constructor() : ViewModel() {
+class PreferencesViewModel @Inject constructor(
+    private val preferencesRepository: PreferencesRepository
+) : ViewModel() {
 
-    private val _themeMode = MutableStateFlow(PreferencesRepository.ThemeMode.SYSTEM.ordinal)
-    val themeMode: StateFlow<Int> = _themeMode.asStateFlow()
+    private val _isDarkMode = MutableStateFlow(false)
+    val isDarkMode: StateFlow<Boolean> = _isDarkMode
 
-    fun getThemeMode(context: Context): StateFlow<Int> {
+    init {
         viewModelScope.launch {
-            _themeMode.value = PreferencesRepository.getThemeMode(context)
+            preferencesRepository.isDarkMode().collect { value ->
+                _isDarkMode.value = value
+            }
         }
-        return themeMode
     }
 
-    fun setThemeMode(context: Context, theme: PreferencesRepository.ThemeMode) {
+    fun enableDarkTheme(enabled: Boolean) {
         viewModelScope.launch {
-            PreferencesRepository.setThemeMode(
-                context = context,
-                themeMode = theme
-            )
+            preferencesRepository.saveDarkMode(enabled)
         }
-        _themeMode.value = theme.ordinal
     }
-
 }
-

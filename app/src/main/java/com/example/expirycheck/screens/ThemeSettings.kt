@@ -1,64 +1,50 @@
 package com.example.expirycheck.screens
 
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.expirycheck.customs.TopAppBar
-import com.example.expirycheck.repository.PreferencesRepository
-import com.example.expirycheck.viewmodel.PreferencesViewModel
+import com.example.expirycheck.R
 
 @Composable
-fun ThemeSettings() {
+fun ThemeChangeSwitch(
+    darkTheme: Boolean,
+    onDarkThemeChange: (Boolean) -> Unit,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(8.dp)
+    ) {
+        Spacer(modifier = Modifier.width(8.dp))
 
-    val context = LocalContext.current
-    val prefsViewModel: PreferencesViewModel = hiltViewModel()
-    val darkThemeState = prefsViewModel.getThemeMode(context).collectAsState().value
-
-    Scaffold(
-        topBar = { TopAppBar("Change Theme") }
-    ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            item {
-                PreferencesRepository.ThemeMode.entries.forEach { themeMode ->
-                    Spacer(modifier = Modifier.fillMaxHeight())
-
-                    if (themeMode.ordinal == darkThemeState) {
-                        Button(
-                            onClick = { /* No action needed, theme is already selected */ }
-                        ) {
-                            Text(text = themeMode.name)
-                        }
-                    } else {
-                        OutlinedButton(
-                            onClick = {
-                                prefsViewModel.setThemeMode(context, themeMode) // Update theme
-                            }
-                        ) {
-                            Text(text = themeMode.name)
-                        }
-                    }
-                    Spacer(modifier = Modifier.fillMaxHeight())
-                }
-            }
-        }
+        Switch(
+            checked = darkTheme,
+            onCheckedChange = onDarkThemeChange,
+            thumbContent = {
+                Image(
+                    painter = painterResource(id = if (darkTheme) R.drawable.baseline_dark_mode_24 else R.drawable.baseline_light_mode_24),
+                    contentDescription = "Theme Icon",
+                    modifier = Modifier.size(16.dp),
+                    colorFilter = ColorFilter.tint(if (darkTheme) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary)
+                )
+            },
+            colors = SwitchDefaults.colors(
+                checkedTrackColor = MaterialTheme.colorScheme.primary,
+                checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                uncheckedTrackColor = MaterialTheme.colorScheme.secondary,
+                uncheckedThumbColor = MaterialTheme.colorScheme.onSecondary,
+            )
+        )
     }
 }
