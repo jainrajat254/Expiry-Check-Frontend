@@ -1,6 +1,9 @@
 package com.example.expirycheck.screens
 
+import android.Manifest
 import android.app.TimePickerDialog
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
@@ -22,9 +25,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.expirycheck.customs.SettingsCard
 import com.example.expirycheck.customs.ThemeSelectionRow
@@ -42,6 +45,18 @@ fun SettingsScreen(navController: NavController, pvm: PreferencesViewModel) {
     var showTimePicker by remember { mutableStateOf(false) }
     val selectedTheme by pvm.selectedTheme.collectAsState()
 
+    val notificationPermissionGranted by remember {
+        mutableStateOf(
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                ContextCompat.checkSelfPermission(
+                    context, Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
+            } else {
+                true
+            }
+        )
+    }
+
     Scaffold(
         topBar = { TopAppBar("Settings") },
         bottomBar = { BottomAppBar(navController) }
@@ -50,42 +65,60 @@ fun SettingsScreen(navController: NavController, pvm: PreferencesViewModel) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 16.dp)
-                .alpha(1.5f),
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item { Spacer(modifier = Modifier.height(8.dp)) }
 
             item {
-                SettingsCard(title = "Notification time", description =
-                "Each day you will receive a notification with a list of:\n" +
-                        "- already expired\n- that expire on the current date\n" +
-                        "- that have one day left until expiration."
+                SettingsCard(
+                    title = "Notification time",
+                    description = """
+                        Each day you will receive a notification with a list of:
+                        - already expired
+                        - that expire on the current date
+                        - that have one day left until expiration.
+                    """.trimIndent()
                 ) {
                     Text(
                         text = String.format(Locale.US, "%02d:%02d", hour, minute),
                         style = MaterialTheme.typography.headlineMedium,
+                        color = if (notificationPermissionGranted)
+                            MaterialTheme.colorScheme.onSurface
+                        else
+                            MaterialTheme.colorScheme.error,
                         modifier = Modifier
                             .fillMaxWidth()
                             .wrapContentWidth(Alignment.End)
-                            .clickable { showTimePicker = true }
+                            .clickable {
+                                if (notificationPermissionGranted) {
+                                    showTimePicker = true
+                                }
+                            }
                     )
-
-                }
-
-                if (showTimePicker) {
-                    TimePickerDialog(
-                        context,
-                        { _, hour, minute ->
-                            pvm.saveNotificationTime(context, hour, minute)
-                            showTimePicker = false
-                        },
-                        hour,
-                        minute,
-                        false
-                    ).show()
+                    if (!notificationPermissionGranted) {
+                        Text(
+                            text = "Notification Permissions are not granted. Please enable it in settings.",
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    }
                 }
             }
+
+            if (showTimePicker) {
+                TimePickerDialog(
+                    context,
+                    { _, hour, minute ->
+                        pvm.saveNotificationTime(context, hour, minute)
+                        showTimePicker = false
+                    },
+                    hour,
+                    minute,
+                    false
+                ).show()
+            }
+
             item {
                 SettingsCard(title = "Theme") {
                     ThemeSelectionRow(selectedTheme) { themeMode -> pvm.saveThemeMode(themeMode) }
@@ -95,13 +128,12 @@ fun SettingsScreen(navController: NavController, pvm: PreferencesViewModel) {
             item { Spacer(modifier = Modifier.height(4.dp)) }
 
             item {
-                TextButton(modifier = Modifier.padding(vertical = 8.dp), onClick = { navController.navigate(Routes.Password.routes) }) {
+                TextButton(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    onClick = { navController.navigate(Routes.Password.routes) }) {
                     Text("Manage Password")
                 }
             }
         }
     }
 }
-
-
-

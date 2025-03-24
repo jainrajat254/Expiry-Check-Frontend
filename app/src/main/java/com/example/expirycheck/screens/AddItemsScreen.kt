@@ -15,27 +15,33 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.expirycheck.R
+import com.example.expirycheck.barcode.BarcodeScanner
+import com.example.expirycheck.barcode.BarcodeViewModel
 import com.example.expirycheck.customs.CalendarBox
 import com.example.expirycheck.customs.CustomButton
 import com.example.expirycheck.customs.CustomIconButton
 import com.example.expirycheck.customs.CustomTextField
 import com.example.expirycheck.navigation.Routes
 import com.example.expirycheck.viewmodel.UserViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddItemsScreen(navController: NavController, vm: UserViewModel) {
+fun AddItemsScreen(navController: NavController, vm: UserViewModel, bvm: BarcodeViewModel) {
 
     var foodName by remember { mutableStateOf("") }
     var expiryDate by remember { mutableStateOf("") }
@@ -44,16 +50,35 @@ fun AddItemsScreen(navController: NavController, vm: UserViewModel) {
     var timeSpan by remember { mutableStateOf("") }
 
     val context = LocalContext.current
+    val barcodeScanner = remember { BarcodeScanner(context) }
+    val barcodeValue by barcodeScanner.barcodeResults.collectAsStateWithLifecycle()
+    val scope = rememberCoroutineScope()
 
-    Scaffold(topBar = {
-        CenterAlignedTopAppBar(title = {
-            Text(
-                text = "Add Item",
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        })
-    }) { paddingValues ->
+    val barcodeResult by bvm.barcodeResult.collectAsStateWithLifecycle()
+
+    LaunchedEffect(barcodeValue) {
+        barcodeValue?.let { scannedValue ->
+            bvm.fetchProduct(scannedValue)
+        }
+    }
+
+    LaunchedEffect(barcodeResult) {
+        barcodeResult?.let { product ->
+            foodName = product.product.productName
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(title = {
+                Text(
+                    text = "Add Item",
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            })
+        }
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .padding(paddingValues)
@@ -69,12 +94,17 @@ fun AddItemsScreen(navController: NavController, vm: UserViewModel) {
                     CustomIconButton(
                         iconRes = R.drawable.barcode,
                         contentDescription = "Barcode Scanner Icon",
-                        onClick = {},
+                        onClick = {
+                            scope.launch {
+                                barcodeScanner.startScan()
+                            }
+                        },
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                 },
                 modifier = Modifier.fillMaxWidth()
             )
+
             CalendarBox(
                 value = expiryDate,
                 label = "Expiry Date",
@@ -83,17 +113,15 @@ fun AddItemsScreen(navController: NavController, vm: UserViewModel) {
             )
 
             Card(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(
                             checked = openingDateRemember,
-                            onCheckedChange = { openingDateRemember = it })
+                            onCheckedChange = { openingDateRemember = it }
+                        )
                         Text(
                             text = "Opening Date (optional)",
                             style = MaterialTheme.typography.bodyLarge,

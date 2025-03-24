@@ -5,6 +5,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.expirycheck.barcode.BarcodeViewModel
 import com.example.expirycheck.screens.AddItemsScreen
 import com.example.expirycheck.screens.HomeScreen
 import com.example.expirycheck.screens.ItemListScreen
@@ -21,6 +22,7 @@ fun App() {
     val navController = rememberNavController()
     val vm = hiltViewModel<UserViewModel>()
     val pvm: PreferencesViewModel = hiltViewModel()
+    val bvm: BarcodeViewModel = hiltViewModel()
 
         NavHost(navController = navController, startDestination = Routes.Login.routes) {
             composable(Routes.Login.routes) {
@@ -36,7 +38,7 @@ fun App() {
                 ItemListScreen(navController = navController, vm = vm)
             }
             composable(Routes.AddItems.routes) {
-                AddItemsScreen(navController = navController, vm = vm)
+                AddItemsScreen(navController = navController, vm = vm, bvm)
             }
             composable(Routes.Settings.routes) {
                 SettingsScreen(navController = navController, pvm = pvm)

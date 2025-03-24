@@ -1,6 +1,7 @@
 package com.example.expirycheck.retrofit
 
 import android.content.Context
+import com.example.expirycheck.barcode.BarcodeScanner
 import com.example.expirycheck.repository.PreferencesRepository
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -19,7 +20,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    private const val BASE_URL = "https://yourapi.com/"
+    private val BASE_URL = "https://de.openfoodfacts.org/api/v2/product/"
     private const val TIMEOUT = 30L
 
     @Provides
@@ -61,5 +62,10 @@ object NetworkModule {
     @Singleton
     fun providePreferencesRepository(@ApplicationContext context: Context): PreferencesRepository {
         return PreferencesRepository(context)
+    }
+
+    @Provides
+    fun provideBarcodeScanner(@ApplicationContext context: Context): BarcodeScanner {
+        return BarcodeScanner(context)
     }
 }
