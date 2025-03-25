@@ -17,7 +17,11 @@ class BarcodeScanner(
 ) {
     private val options = GmsBarcodeScannerOptions.Builder()
         .setBarcodeFormats(
-            Barcode.FORMAT_ALL_FORMATS
+            Barcode.FORMAT_EAN_13,  // Used for food, cosmetics, and retail items
+            Barcode.FORMAT_EAN_8,   // Smaller version of EAN-13
+            Barcode.FORMAT_UPC_A,   // Used in the US & Canada
+            Barcode.FORMAT_UPC_E,   // Compact version of UPC-A
+            Barcode.FORMAT_DATA_MATRIX,  // Used for medicines & pharmaceuticals
         )
         .build()
 

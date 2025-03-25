@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.TimePickerDialog
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
@@ -110,6 +111,9 @@ fun SettingsScreen(navController: NavController, pvm: PreferencesViewModel) {
                 TimePickerDialog(
                     context,
                     { _, hour, minute ->
+                        // Log the selected time for debugging
+                        Log.d("Notification", "Selected time: $hour:$minute")
+
                         pvm.saveNotificationTime(context, hour, minute)
                         showTimePicker = false
                     },

@@ -10,7 +10,6 @@ import com.example.expirycheck.screens.AddItemsScreen
 import com.example.expirycheck.screens.HomeScreen
 import com.example.expirycheck.screens.ItemListScreen
 import com.example.expirycheck.screens.LoginScreen
-import com.example.expirycheck.screens.NotificationSettings
 import com.example.expirycheck.screens.PasswordSettings
 import com.example.expirycheck.screens.RegisterScreen
 import com.example.expirycheck.screens.SettingsScreen
@@ -46,9 +45,7 @@ fun App() {
             composable(Routes.Password.routes) {
                 PasswordSettings()
             }
-            composable(Routes.Notifications.routes) {
-                NotificationSettings()
-            }
+
         }
 }
 

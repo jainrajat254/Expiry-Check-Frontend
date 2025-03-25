@@ -8,7 +8,5 @@ sealed class Routes(var routes: String) {
     data object Settings: Routes("settings")
     data object List: Routes("list")
     data object AddItems : Routes("add_items")
-    data object Notifications: Routes("notifications")
-    data object Theme: Routes("theme")
     data object Password: Routes("password")
 }

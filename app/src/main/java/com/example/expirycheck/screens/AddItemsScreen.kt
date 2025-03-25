@@ -43,7 +43,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun AddItemsScreen(navController: NavController, vm: UserViewModel, bvm: BarcodeViewModel) {
 
-    var foodName by remember { mutableStateOf("") }
+    var itemName by remember { mutableStateOf("") }
     var expiryDate by remember { mutableStateOf("") }
     var openingDateRemember by remember { mutableStateOf(false) }
     var openingDate by remember { mutableStateOf("") }
@@ -54,18 +54,19 @@ fun AddItemsScreen(navController: NavController, vm: UserViewModel, bvm: Barcode
     val barcodeValue by barcodeScanner.barcodeResults.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
 
-    val barcodeResult by bvm.barcodeResult.collectAsStateWithLifecycle()
 
     LaunchedEffect(barcodeValue) {
         barcodeValue?.let { scannedValue ->
-            bvm.fetchProduct(scannedValue)
+            bvm.fetchProduct(scannedValue) { errorMessage ->
+                Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
-    LaunchedEffect(barcodeResult) {
-        barcodeResult?.let { product ->
-            foodName = product.product.productName
-        }
+    val product by bvm.barcodeResult.collectAsStateWithLifecycle()
+
+    LaunchedEffect(product) {
+        itemName = product?.product?.productName ?: ""
     }
 
     Scaffold(
@@ -86,10 +87,10 @@ fun AddItemsScreen(navController: NavController, vm: UserViewModel, bvm: Barcode
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             CustomTextField(
-                value = foodName,
-                onValueChange = { foodName = it },
-                label = "Food Name",
-                placeholder = "Enter food name",
+                value = itemName,
+                onValueChange = { itemName = it },
+                label = "Item Name",
+                placeholder = "Enter item name",
                 trailingIcon = {
                     CustomIconButton(
                         iconRes = R.drawable.barcode,
@@ -160,7 +161,7 @@ fun AddItemsScreen(navController: NavController, vm: UserViewModel, bvm: Barcode
                     text = "Add",
                     onClick = {
                         val message = when {
-                            foodName.isBlank() -> "Please enter the item name"
+                            itemName.isBlank() -> "Please enter the item name"
                             expiryDate.isBlank() -> "Please select the expiry date"
                             else -> {
                                 navController.navigate(Routes.Home.routes)

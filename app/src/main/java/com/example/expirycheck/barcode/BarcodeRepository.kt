@@ -1,6 +1,5 @@
 package com.example.expirycheck.barcode
 
-
 import com.example.expirycheck.retrofit.UserService
 import javax.inject.Inject
 

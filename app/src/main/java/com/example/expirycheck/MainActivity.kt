@@ -22,7 +22,6 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private var hasNotificationPermission = false
-    private var hasCameraPermission = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,12 +49,9 @@ class MainActivity : ComponentActivity() {
     private fun requestPermissions() {
         val permissionsToRequest = mutableListOf<String>()
 
-        // Request notification permission (for Android 13+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
         }
-
-        permissionsToRequest.add(Manifest.permission.CAMERA)
 
         if (permissionsToRequest.isNotEmpty()) {
             permissionLauncher.launch(permissionsToRequest.toTypedArray())
@@ -65,6 +61,5 @@ class MainActivity : ComponentActivity() {
     private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             hasNotificationPermission = permissions[Manifest.permission.POST_NOTIFICATIONS] ?: false
-            hasCameraPermission = permissions[Manifest.permission.CAMERA] ?: false
         }
 }
