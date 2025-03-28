@@ -2,13 +2,16 @@ package com.example.expirycheck.notifications
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.media.RingtoneManager
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import com.example.expirycheck.MainActivity
 import com.example.expirycheck.R
 
 class NotificationWorker(
@@ -40,16 +43,29 @@ class NotificationWorker(
 
         val notificationText = buildNotificationText(expiredCount, expiringTodayCount, expiringTomorrowCount)
 
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
         val notification = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle("Reminder")
             .setContentText(notificationText)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-            .setAutoCancel(true) // Removes notification when clicked
+            .setContentIntent(pendingIntent) // ✅ Open app when tapped
+            .setAutoCancel(true) // ✅ Removes notification when clicked
             .build()
 
         notificationManager.notify(notificationId, notification)
+
     }
 
     private fun buildNotificationText(expired: Int, expiringToday: Int, expiringTomorrow: Int): String {
