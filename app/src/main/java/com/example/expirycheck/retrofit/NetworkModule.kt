@@ -14,6 +14,7 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -21,6 +22,8 @@ import javax.inject.Singleton
 object NetworkModule {
 
     private val BASE_URL = "https://de.openfoodfacts.org/api/v2/product/"
+    private const val BACKEND_BASE_URL = "https://bbd2-152-59-120-168.ngrok-free.app"
+
     private const val TIMEOUT = 30L
 
     @Provides
@@ -44,6 +47,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    @Named("BarcodeRetrofit")
     fun provideRetrofit(okHttpClient: OkHttpClient, gson: Gson): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
@@ -54,7 +58,27 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideApiService(retrofit: Retrofit): UserService {
+    @Named("BackendRetrofit")
+    fun provideBackendRetrofit(okHttpClient: OkHttpClient, gson: Gson): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(BACKEND_BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    @Named("BackendService")
+    fun provideBackendService(@Named("BackendRetrofit") backendRetrofit: Retrofit): UserService {
+        return backendRetrofit.create(UserService::class.java)
+    }
+
+
+    @Provides
+    @Singleton
+    @Named("BarcodeService")
+    fun provideApiService(@Named("BarcodeRetrofit")retrofit: Retrofit): UserService {
         return retrofit.create(UserService::class.java)
     }
 

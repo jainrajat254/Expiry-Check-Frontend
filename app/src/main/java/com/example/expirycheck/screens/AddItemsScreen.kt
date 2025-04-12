@@ -35,13 +35,20 @@ import com.example.expirycheck.customs.CalendarBox
 import com.example.expirycheck.customs.CustomButton
 import com.example.expirycheck.customs.CustomIconButton
 import com.example.expirycheck.customs.CustomTextField
+import com.example.expirycheck.models.AddItems
 import com.example.expirycheck.navigation.Routes
-import com.example.expirycheck.viewmodel.UserViewModel
+import com.example.expirycheck.repository.PreferencesRepository
+import com.example.expirycheck.viewmodel.ItemsViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddItemsScreen(navController: NavController, vm: UserViewModel, bvm: BarcodeViewModel) {
+fun AddItemsScreen(
+    navController: NavController,
+    ivm: ItemsViewModel,
+    bvm: BarcodeViewModel,
+    sharedPreferencesManager: PreferencesRepository,
+) {
 
     var itemName by remember { mutableStateOf("") }
     var expiryDate by remember { mutableStateOf("") }
@@ -64,9 +71,17 @@ fun AddItemsScreen(navController: NavController, vm: UserViewModel, bvm: Barcode
     }
 
     val product by bvm.barcodeResult.collectAsStateWithLifecycle()
-
     LaunchedEffect(product) {
         itemName = product?.product?.productName ?: ""
+    }
+
+    var username by remember {
+        mutableStateOf("")
+    }
+
+    LaunchedEffect(Unit) {
+        username = sharedPreferencesManager.getUsername().toString()
+        println("The username is $username")
     }
 
     Scaffold(
@@ -160,20 +175,49 @@ fun AddItemsScreen(navController: NavController, vm: UserViewModel, bvm: Barcode
                 CustomButton(
                     text = "Add",
                     onClick = {
-                        val message = when {
-                            itemName.isBlank() -> "Please enter the item name"
-                            expiryDate.isBlank() -> "Please select the expiry date"
+                        when {
+                            itemName.isBlank() -> {
+                                Toast.makeText(
+                                    context,
+                                    "Please enter the item name",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+
+                            expiryDate.isBlank() -> {
+                                Toast.makeText(
+                                    context,
+                                    "Please select the expiry date",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+
                             else -> {
-                                navController.navigate(Routes.Home.routes)
-                                "Item added successfully"
+                                val openingDateFinal =
+                                    if (openingDateRemember) openingDate else "NA"
+                                val timeSpanFinal = if (openingDateRemember) timeSpan else "NA"
+                                val item = AddItems(
+                                    itemName = itemName,
+                                    expiryDate = expiryDate,
+                                    openingDate = openingDateFinal,
+                                    timeSpan = timeSpanFinal,
+                                    username = username
+                                )
+
+                                ivm.addItems(item)
+
+                                Toast.makeText(context, "Item added", Toast.LENGTH_SHORT).show()
+                                navController.navigate(Routes.Home.routes) {
+                                    popUpTo(0) { inclusive = true }
+                                }
                             }
                         }
-                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                     },
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = 10.dp)
                 )
+
             }
         }
     }

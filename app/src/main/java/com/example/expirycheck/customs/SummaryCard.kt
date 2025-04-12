@@ -18,7 +18,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SummaryCard(title: String, count: Int, containerColor: Color, modifier: Modifier = Modifier) {
+fun SummaryCard(
+    title: String,
+    count: Int,
+    containerColor: Color,
+    modifier: Modifier = Modifier,
+) {
     Card(
         modifier = modifier
             .fillMaxWidth()

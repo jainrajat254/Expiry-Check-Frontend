@@ -37,7 +37,7 @@ fun CustomButton(
     ) {
         icon?.let {
             it()
-            Spacer(modifier = Modifier.width(8.dp)) // Add space only if icon exists
+            Spacer(modifier = Modifier.width(8.dp))
         }
         Text(text)
     }

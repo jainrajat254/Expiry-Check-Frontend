@@ -2,9 +2,10 @@ package com.example.expirycheck.barcode
 
 import com.example.expirycheck.retrofit.UserService
 import javax.inject.Inject
+import javax.inject.Named
 
 class BarcodeRepository @Inject constructor(
-    private val userService: UserService,
+    @Named("BarcodeService") private val userService: UserService,
 ) {
     suspend fun getProduct(barcode: String): BarcodeResponse? {
         return try {

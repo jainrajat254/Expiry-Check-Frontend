@@ -6,24 +6,65 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.media.RingtoneManager
-import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.work.Worker
+import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.expirycheck.MainActivity
 import com.example.expirycheck.R
+import com.example.expirycheck.repository.PreferencesRepository
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 class NotificationWorker(
     context: Context,
     workerParams: WorkerParameters
-) : Worker(context, workerParams) {
+) : CoroutineWorker(context, workerParams) {
 
-    override fun doWork(): Result {
+    override suspend fun doWork(): Result {
         Log.d("NotificationWorker", "✅ Notification Worker started at ${System.currentTimeMillis()}")
-        showNotification(applicationContext,12,0,5)
+
+        val prefs = PreferencesRepository(applicationContext)
+        val items = prefs.getItemsList()  // Already saved via HomeScreen
+        val today = LocalDate.now()
+        val tomorrow = today.plusDays(1)
+
+        var expiredCount = 0
+        var expiringTodayCount = 0
+        var expiringTomorrowCount = 0
+
+        for (item in items) {
+            val date = parseDate(item.expiryDate)
+
+            Log.d("NotificationWorker", "Item: ${item.itemName}, Expiry: ${item.expiryDate}, Parsed: $date")
+
+            if (date != null) {
+                when {
+                    date.isBefore(today) -> expiredCount++
+                    date.isEqual(today) -> expiringTodayCount++
+                    date.isEqual(tomorrow) -> expiringTomorrowCount++
+                }
+            }
+        }
+
+        Log.d("NotificationWorker", "Expired: $expiredCount, Today: $expiringTodayCount, Tomorrow: $expiringTomorrowCount")
+
+        showNotification(applicationContext, expiredCount, expiringTodayCount, expiringTomorrowCount)
         return Result.success()
     }
+
+    private fun parseDate(dateStr: String): LocalDate? {
+        return try {
+            val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.ENGLISH)
+            LocalDate.parse(dateStr, formatter)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+
 
 
     private fun showNotification(context: Context, expiredCount: Int, expiringTodayCount: Int, expiringTomorrowCount: Int) {
@@ -31,15 +72,12 @@ class NotificationWorker(
         val notificationId = 1001
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        // Create notification channel for Android 8.0+ (Oreo)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId, "Daily Reminder", NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = "Notifies about expiring items"
-            }
-            notificationManager.createNotificationChannel(channel)
+        val channel = NotificationChannel(
+            channelId, "Daily Reminder", NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            description = "Notifies about expiring items"
         }
+        notificationManager.createNotificationChannel(channel)
 
         val notificationText = buildNotificationText(expiredCount, expiringTodayCount, expiringTomorrowCount)
 
@@ -74,7 +112,6 @@ class NotificationWorker(
         if (expired > 0) parts.add("$expired ${if (expired == 1) "item has" else "items have"} expired 🛑")
         if (expiringToday > 0) parts.add("$expiringToday ${if (expiringToday == 1) "item is" else "items are"} expiring today ⚠️")
         if (expiringTomorrow > 0) parts.add("$expiringTomorrow ${if (expiringTomorrow == 1) "item will" else "items will"} expire tomorrow ⏳")
-
         return if (parts.isNotEmpty()) parts.joinToString("\n") else "✅ No items are expiring soon!"
     }
 }

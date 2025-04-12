@@ -1,5 +1,6 @@
 package com.example.expirycheck.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -12,18 +13,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -36,18 +40,49 @@ import com.example.expirycheck.R
 import com.example.expirycheck.customs.CustomButton
 import com.example.expirycheck.customs.CustomTextButton
 import com.example.expirycheck.customs.CustomTextField
+import com.example.expirycheck.models.RegisterRequest
 import com.example.expirycheck.navigation.Routes
-import com.example.expirycheck.viewmodel.UserViewModel
+import com.example.expirycheck.repository.PreferencesRepository
+import com.example.expirycheck.viewmodel.AuthViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun RegisterScreen(
     navController: NavController = rememberNavController(),
-    vm: UserViewModel = viewModel(),
+    vm: AuthViewModel = viewModel(),
+    sharedPreferencesManager: PreferencesRepository,
 ) {
     var name by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+
+    val isLoading = vm.isLoading
+    val loginResponse = vm.loginResponse
+    val authError = vm.authError
+
+    LaunchedEffect(loginResponse) {
+        loginResponse?.let { userResponse ->
+            CoroutineScope(Dispatchers.IO).launch {
+                sharedPreferencesManager.saveUser(userResponse)
+            }
+            navController.navigate(Routes.Home.routes) {
+                popUpTo(0) { inclusive = true }
+            }
+            vm.clearState()
+        }
+    }
+
+    LaunchedEffect(authError) {
+        authError?.let {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+            vm.clearState()
+        }
+    }
 
     Scaffold(
         content = { paddingValues ->
@@ -144,13 +179,56 @@ fun RegisterScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     CustomButton(
-                        text = "REGISTER",
-                        onClick = { /* Handle login logic */ },
+                        text = if (isLoading) "Registering..." else "Register",
+                        enabled = !isLoading,
+                        onClick = {
+                            when {
+                                name.isBlank() -> {
+                                    Toast.makeText(
+                                        context,
+                                        "Name cannot be empty",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+
+                                username.isBlank() -> {
+                                    Toast.makeText(
+                                        context,
+                                        "Username cannot be empty",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+
+                                password.isBlank() -> {
+                                    Toast.makeText(
+                                        context,
+                                        "Password cannot be empty",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+
+                                else -> {
+                                    val registerRequest = RegisterRequest(
+                                        fullName = name.trim(),
+                                        username = username.trim(),
+                                        password = password.trim()
+                                    )
+                                    vm.register(registerRequest)
+                                }
+                            }
+                        },
                         icon = {
-                            Icon(
-                                Icons.Filled.PlayArrow,
-                                contentDescription = "Register Icon"
-                            )
+                            if (isLoading) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp),
+                                    strokeWidth = 2.dp
+                                )
+                            } else {
+                                Icon(
+                                    Icons.Filled.PlayArrow,
+                                    contentDescription = "Register Icon"
+                                )
+                            }
                         }
                     )
 
